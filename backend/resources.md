@@ -1,0 +1,3 @@
+- https://docs.pydantic.dev/latest/#why-use-pydantic
+- https://magicstack.github.io/asyncpg/current/installation.html
+- https://www.sheshbabu.com/posts/fastapi-without-orm-getting-started-with-asyncpg/
