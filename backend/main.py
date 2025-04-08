@@ -9,11 +9,10 @@ from db.db_handler import startup_db, shutdown_db
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan():
     await startup_db()
     yield
     await shutdown_db()
-
 
 app = FastAPI(lifespan=lifespan)
 
