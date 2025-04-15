@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Books</title>
+    <script>
+        async function fetchBooks() {
+            const response = await fetch('/search/all');
+            const books = await response.json();
+            const booksList = document.getElementById('books-list');
+            booksList.innerHTML = ''; // Clear the list before appending
+
+            if (books.length === 0) {
+                booksList.innerHTML = '<li>No books found.</li>';
+            } else {
+                books.forEach(book => {
+                    const li = document.createElement('li');
+                    li.textContent = `${book.title} by ${book.author}`;
+                    booksList.appendChild(li);
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Search Books</h1>
+    <button onclick="fetchBooks()">Load All Books</button>
+    <ul id="books-list"></ul>
+</body>
+</html>
