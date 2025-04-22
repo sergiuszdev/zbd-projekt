@@ -46,7 +46,7 @@ CREATE TABLE "users" (
 CREATE TABLE "borrowings" (
   "id" uuid PRIMARY KEY,
   "user_id" uuid REFERENCES users(id) ON DELETE SET NULL,
-  "book_id" uuid NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+  "book_copy_id" uuid NOT NULL REFERENCES storage(book_id)  ON DELETE CASCADE,
   "borrowed_at" timestamp DEFAULT (now()),
   "due_at" timestamp NOT NULL,
   "returned_at" timestamp,
@@ -57,6 +57,5 @@ CREATE TABLE "borrowings" (
 CREATE TABLE "storage" (
   "id" uuid PRIMARY KEY,
   "book_id" uuid NOT NULL UNIQUE REFERENCES books(id) ON DELETE CASCADE,
-  "total_copies" int NOT NULL DEFAULT 1 CHECK (total_copies >= 0),
-  "available_copies" int NOT NULL DEFAULT 1 CHECK (available_copies >= 0 AND available_copies <= total_copies)
+  "is_available" boolean not null default true
 );
