@@ -26,7 +26,3 @@ app.include_router(router=books_router, prefix="/books")
 app.include_router(router=genres_controller, prefix="/genres")
 app.include_router(router=authors_router, prefix="/authors")
 app.include_router(router=search_controller, prefix="/search")
-
-@app.get("/search", response_class=HTMLResponse)
-async def search_page(request: Request):
-    return templates.TemplateResponse("search.html", {"request": request})

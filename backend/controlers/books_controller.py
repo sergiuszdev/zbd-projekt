@@ -23,7 +23,7 @@ async def search_book(
         JOIN books_authors ON books.id = books_authors.book_id
         JOIN authors ON authors.id = books_authors.author_id
         WHERE books.title ILIKE $1 OR authors.name ILIKE $1
-    """
+    """ 
     params = [f"%{q}%"]
 
     results = await db.fetch(query, *params)
@@ -67,3 +67,5 @@ async def search_book(
     results = await db.fetch(query, *params)
 
     return {"ilość rekordów": len(results), "wyniki": results}
+
+ #apache bekchmark, sieg, dociążenie bazy lub zwiększenie zasobów
