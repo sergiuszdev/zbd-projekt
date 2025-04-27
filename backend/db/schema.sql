@@ -19,16 +19,11 @@ CREATE TABLE "books" (
   "created_at" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "books_authors" (
-  "book_id" uuid NOT NULL REFERENCES books(id) ON DELETE CASCADE,
-  "author_id" uuid NOT NULL REFERENCES authors(id) ON DELETE CASCADE,
-  PRIMARY KEY ("book_id", "author_id")
-);
-
-CREATE TABLE "books_genres" (
-  "book_id" uuid NOT NULL REFERENCES books(id) ON DELETE CASCADE,
-  "genre_id" uuid NOT NULL REFERENCES genres(id) ON DELETE CASCADE,
-  PRIMARY KEY ("book_id", "genre_id")
+CREATE TABLE "storage" (
+    "id" UUID PRIMARY KEY,
+    "book_id" UUID,                       
+    "is_available" BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT fk_book_id FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
 );
 
 CREATE TABLE "users" (
@@ -43,19 +38,25 @@ CREATE TABLE "users" (
   CHECK (phone_number ~ '^[0-9]+$')
 );
 
+CREATE TABLE "books_authors" (
+  "book_id" uuid NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+  "author_id" uuid NOT NULL REFERENCES authors(id) ON DELETE CASCADE,
+  PRIMARY KEY ("book_id", "author_id")
+);
+
+CREATE TABLE "books_genres" (
+  "book_id" uuid NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+  "genre_id" uuid NOT NULL REFERENCES genres(id) ON DELETE CASCADE,
+  PRIMARY KEY ("book_id", "genre_id")
+);
+
 CREATE TABLE "borrowings" (
   "id" uuid PRIMARY KEY,
   "user_id" uuid REFERENCES users(id) ON DELETE SET NULL,
-  "book_copy_id" uuid NOT NULL REFERENCES storage(book_id)  ON DELETE CASCADE,
+  "book_copy_id" uuid NOT NULL REFERENCES storage(id)  ON DELETE CASCADE,
   "borrowed_at" timestamp DEFAULT (now()),
   "due_at" timestamp NOT NULL,
   "returned_at" timestamp,
   CHECK (due_at > borrowed_at),
   CHECK (returned_at IS NULL OR returned_at >= borrowed_at)
-);
-
-CREATE TABLE "storage" (
-  "id" uuid PRIMARY KEY,
-  "book_id" uuid NOT NULL UNIQUE REFERENCES books(id) ON DELETE CASCADE,
-  "is_available" boolean not null default true
 );
