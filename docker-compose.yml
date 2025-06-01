@@ -1,0 +1,82 @@
+services:
+
+  primary_db:
+    image: bitnami/postgresql:16
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_USERNAME=fastapi_user
+      - POSTGRESQL_PASSWORD=secret
+      - POSTGRESQL_DATABASE=fastapi_db
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_pass
+    volumes:
+      - primary_data:/bitnami/postgresql
+      - ./db_dump.sql:/docker-entrypoint-initdb.d/db_dump.sql:ro
+    expose:
+      - "5432"
+
+  replica_db:
+    image: bitnami/postgresql:16
+    depends_on:
+      - primary_db
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_MASTER_HOST=primary_db
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_pass
+      - POSTGRESQL_USERNAME=fastapi_user
+      - POSTGRESQL_PASSWORD=secret
+    volumes:
+      - replica_data:/bitnami/postgresql
+    expose:
+      - "5432"
+
+  pgpool:
+    image: bitnami/pgpool:4
+    depends_on:
+      - primary_db
+      - replica_db
+    ports:
+      - "5433:5432"
+    environment:
+      # Backend setup
+      - PGPOOL_BACKEND_NODES=0:primary_db:5432,1:replica_db:5432
+
+      # Load balancing enabled
+      - PGPOOL_LOAD_BALANCE_MODE=true
+
+      # Assign equal weights to primary and replica for SELECTs
+      - PGPOOL_BACKEND_WEIGHT0=1
+      - PGPOOL_BACKEND_WEIGHT1=1
+
+      # Connection/auth config
+      - PGPOOL_SR_CHECK_USER=fastapi_user
+      - PGPOOL_SR_CHECK_PASSWORD=secret
+      - POSTGRES_USERNAME=fastapi_user
+      - POSTGRES_PASSWORD=secret
+      - PGPOOL_POSTGRES_USERNAME=fastapi_user
+      - PGPOOL_POSTGRES_PASSWORD=secret
+      - PGPOOL_ADMIN_USERNAME=pgpooladmin
+      - PGPOOL_ADMIN_PASSWORD=someStrongAdminPassword
+
+      # Logging for load balancing/debug
+      - PGPOOL_ENABLE_LOGGER_STATEMENT=true
+      - PGPOOL_LOG_PER_NODE_STATEMENT=true
+      - PGPOOL_DEBUG_LEVEL=1
+
+      # Pooler tuning (optional for high concurrency)
+      - PGPOOL_NUM_INIT_CHILDREN=250
+      - PGPOOL_CHILD_LIFE_TIME=300
+      - PGPOOL_MAX_POOL=100
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - pgpool
+    env_file:
+      - .env
+volumes:
+  primary_data:
+  replica_data:

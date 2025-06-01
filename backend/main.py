@@ -9,7 +9,6 @@ from controlers.books_controller import router as books_router
 from controlers.authors_controller import router as authors_router
 from controlers.genres_controller import router as genres_controller
 from controlers.search_controller import router as search_controller
-from controlers.borrowing_controller import router as borrowing
 
 from db.db_handler import startup_db, shutdown_db
 templates = Jinja2Templates(directory="templates")
@@ -28,3 +27,7 @@ app.include_router(router=genres_controller, prefix="/genres")
 app.include_router(router=authors_router, prefix="/authors")
 app.include_router(router=search_controller, prefix="/search")
 app.include_router(router=borrowing)
+
+@app.get("/search", response_class=HTMLResponse)
+async def search_page(request: Request):
+    return templates.TemplateResponse("search.html", {"request": request})

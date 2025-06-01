@@ -1,5 +1,4 @@
-import asyncpg
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 
 from db.db_handler import get_db
 
