@@ -2,14 +2,12 @@ import asyncpg
 from asyncpg import Pool
 import db.settings as conf
 
-DB_URL = f"postgresql://{conf.USER}:{conf.PASSWORD}@localhost:5432/{conf.DB_NAME}"
-
 pool: Pool = None
 
 
 async def startup_db():
     global pool
-    pool = await asyncpg.create_pool(DB_URL, min_size=5, max_size=20)
+    pool = await asyncpg.create_pool(conf.DB_URL, min_size=5, max_size=20)
 
 
 async def shutdown_db():
